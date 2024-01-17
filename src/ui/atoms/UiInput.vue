@@ -136,3 +136,9 @@ watch(
   },
 );
 </script>
+
+<style scoped lang="scss">
+.p-inputtext {
+  width: 100%;
+}
+</style>

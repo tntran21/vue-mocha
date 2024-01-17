@@ -1,12 +1,12 @@
 <template>
   <div class="home">
     <img alt="Vue logo" src="../assets/logo.png" />
-    <UserForm :user="user" mode="view" />
+    <UserForm :user="user" mode="edit" />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, watch } from "vue";
 import UserForm from "@/components/UserForm.vue";
 import { UserDto } from "@/core/dto/userDto";
 
@@ -24,6 +24,10 @@ export default defineComponent({
         code: "3",
       }),
     );
+
+    watch(user.value, (newVal) => {
+      console.log(newVal);
+    });
 
     return { user };
   },

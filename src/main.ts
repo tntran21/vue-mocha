@@ -5,9 +5,10 @@ import router from "./router";
 import PrimeVue from "primevue/config";
 import ToastService from "primevue/toastservice";
 import "primevue/resources/primevue.min.css";
-import "primevue/resources/themes/lara-light-green/theme.css";
+import "primevue/resources/themes/lara-light-blue/theme.css";
 import "primeicons/primeicons.css";
 import "primeflex/primeflex.css";
+import "@/assets/main.scss";
 
 const app = createApp(App);
 app.use(PrimeVue, { ripple: true });

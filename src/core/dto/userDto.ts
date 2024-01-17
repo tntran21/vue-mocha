@@ -11,7 +11,7 @@ class UserDto {
   id: string;
   name: string;
   email: string;
-  code: string;
+  code?: string | null;
   address: string | null;
   phone: string | null;
 
@@ -19,7 +19,7 @@ class UserDto {
     this.id = user?.id ?? "";
     this.name = user?.name ?? "";
     this.email = user?.email ?? "";
-    this.code = user?.code ?? "";
+    this.code = user?.code ?? null;
     this.address = user?.address ?? null;
     this.phone = user?.phone ?? null;
   }

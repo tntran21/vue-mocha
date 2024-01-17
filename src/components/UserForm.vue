@@ -1,5 +1,5 @@
 <template>
-  <div class="user-form">
+  <div class="user-form text-left">
     <div class="user-form__field user-name flex align-start">
       <UiLabel id="name" required>Name</UiLabel>
       <UiInput
@@ -9,14 +9,15 @@
         :disabled="readMode"
         :error="errors?.name"
         :maxlength="25"
+        style="width: 200px"
       />
     </div>
     <div class="user-form__field user-email">
       <UiLabel id="email" :required="!readMode" :disabled="readMode">Email</UiLabel>
-      <UiInput id="email" v-model="userForm.email" :disabled="readMode" :error="errors?.email" />
+      <UiInput id="email" v-model="userForm.email" :disabled="readMode" :error="errors?.email" style="width: 200px" />
     </div>
     <div class="user-form__field user-position">
-      <UiLabel :required="!readMode" :disabled="readMode">Position</UiLabel>
+      <UiLabel :disabled="readMode">Position</UiLabel>
       <Dropdown
         v-model="userForm.code"
         :options="positionOptions"
@@ -24,7 +25,7 @@
         :disabled="readMode"
         option-label="name"
         option-value="id"
-        style="width: 250px"
+        style="width: 200px"
       />
     </div>
     <div class="user-form__field user-phone">
@@ -36,11 +37,19 @@
         :maxlength="10"
         :error="errors?.phone"
         rule="0-9"
+        style="width: 200px"
       />
     </div>
     <div class="user-form__field user-address">
       <UiLabel id="address">Address</UiLabel>
-      <UiInput id="address" v-model="userForm.address" :disabled="readMode" :error="errors?.address" :maxlength="25" />
+      <UiInput
+        id="address"
+        v-model="userForm.address"
+        :disabled="readMode"
+        :error="errors?.address"
+        :maxlength="25"
+        style="width: 200px"
+      />
     </div>
   </div>
 </template>
@@ -62,7 +71,9 @@ interface IProps {
   user: UserDto;
   // Only use "view" | "edit in mode prop
   mode?: Extract<TModeForm, "view" | "edit">;
-    errors?: Record<keyof IUser, string>;
+  errors?: {
+    [key in keyof IUser]?: string;
+  };
 }
 // Defined default props
 const props = withDefaults(defineProps<IProps>(), {

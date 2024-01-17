@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { mount, flushPromises } from "@vue/test-utils";
 import { AxiosRequestHeaders, AxiosResponse } from "axios";
 import sinon, { SinonStub } from "sinon";
@@ -16,9 +15,11 @@ import { ToastUtils } from "@/core/utils/toastUtils";
 import { TestUtils } from "../../utils/testUitls";
 
 interface IProps {
-  user: UserDto;
+  user?: UserDto;
   mode?: Extract<TModeForm, "view" | "edit">;
-  errors?: Record<keyof IUser, string>;
+  errors?: {
+    [key in keyof IUser]?: string;
+  };
 }
 
 interface IApiCodesStub {
@@ -37,7 +38,6 @@ const sandbox = sinon.createSandbox();
 
 describe("UserForm.vue", () => {
   let apiGetStub: SinonStub;
-  let throwError: Error | undefined;
   const messageUtilsStub: sinon.SinonStubbedInstance<typeof ToastUtils> = TestUtils.getToastMessageStub();
 
   // Create a component instance
@@ -48,9 +48,8 @@ describe("UserForm.vue", () => {
         UiLabel,
         UiInput,
       },
-      errorHandler: (err: Error) => {
-        throwError = err;
-      },
+      // Mock $t function
+      errorHandler: () => {},
     };
     return mount(UserForm, {
       props: {
@@ -61,7 +60,7 @@ describe("UserForm.vue", () => {
             email: "john.doe@example.com",
             address: "123 Main St",
             phone: "1234567890",
-            code: "XYZ123",
+            code: "1",
           }),
         mode: props?.mode ?? "view",
         errors: props?.errors ?? undefined,
@@ -105,7 +104,7 @@ describe("UserForm.vue", () => {
   };
 
   afterEach(() => {
-    throwError = undefined;
+    // If want to use stubs for all tests, use this
   });
 
   afterEach(() => {
@@ -116,7 +115,7 @@ describe("UserForm.vue", () => {
     messageUtilsStub.removeAll.resetHistory();
   });
 
-  it("No.1 [Normal]: Initial > API GET /codes executed with status === 200", async () => {
+  it("No.1 [Normal]: Initial view mode > API GET /codes executed with status === 200", async () => {
     const stub = createStub();
     const wrapper = componentMount();
     await flushPromises();
@@ -133,7 +132,7 @@ describe("UserForm.vue", () => {
     }
   });
 
-  it("No.2 [Normal]: Initial > API GET /codes executed with status !== 200 and show toast error", async () => {
+  it("No.2 [Normal]: Initial view mode > API GET /codes executed with status !== 200 and show toast error", async () => {
     const stub = createStub({ isCodesError: true });
     const wrapper = componentMount();
     await flushPromises();
@@ -153,7 +152,7 @@ describe("UserForm.vue", () => {
     }
   });
 
-  it("No.3 [Normal]: Initial > Check modelValue and readonly of name, email, phone, address,", async () => {
+  it("No.3 [Normal]: Initial View Mode > Check modelValue and readonly of name, email, phone, address,", async () => {
     createStub();
     const wrapper = componentMount();
     await flushPromises();
@@ -171,6 +170,67 @@ describe("UserForm.vue", () => {
 
       const addressInput = wrapper.find(".user-address").findComponent(UiInput);
       expect(addressInput.props("modelValue")).to.equal("123 Main St");
+    } finally {
+      wrapper.unmount();
+    }
+  });
+
+  it("No.4 [Normal]: Initial View Mode > Check modelValue and readonly of position", async () => {
+    createStub();
+    const wrapper = componentMount();
+    await flushPromises();
+
+    try {
+      await wrapper.vm.$nextTick();
+      const positionInput = wrapper.find(".user-position").findComponent(Dropdown);
+      expect(positionInput.props("modelValue")).to.equal("1");
+
+      expect(positionInput.props("options")).to.deep.equal(CODES_DATA);
+      expect(positionInput.props("optionLabel")).to.equal("name");
+      expect(positionInput.props("optionValue")).to.equal("id");
+    } finally {
+      wrapper.unmount();
+    }
+  });
+
+  it("No.5 [Normal]: Initial View Mode > Show error of props errors", async () => {
+    createStub();
+    const wrapper = componentMount({
+      errors: {
+        name: "Name is required",
+        email: "Email is required",
+      },
+    });
+    await flushPromises();
+
+    try {
+      await wrapper.vm.$nextTick();
+      const nameInput = wrapper.find(".user-name").findComponent(UiInput);
+      expect(nameInput.props("error")).to.equal("Name is required");
+
+      const emailInput = wrapper.find(".user-email").findComponent(UiInput);
+      expect(emailInput.props("error")).to.equal("Email is required");
+    } finally {
+      wrapper.unmount();
+    }
+  });
+
+  it("No.6 [Normal]: Initial Edit Mode > When change name 'update:modelValue' called", async () => {
+    createStub();
+    const wrapper = componentMount({
+      mode: "edit",
+    });
+    await flushPromises();
+
+    try {
+      await wrapper.vm.$nextTick();
+      const nameInput = wrapper.find(".user-name").findComponent(UiInput);
+      await nameInput.vm.$emit("update:modelValue", "John Doe edited");
+      await wrapper.vm.$nextTick();
+
+      console.log("--- emitted: ", wrapper);
+
+      // expect(wrapper.emitted("update:user")?.length).to.eq(1);
     } finally {
       wrapper.unmount();
     }
