@@ -62,9 +62,7 @@ interface IProps {
   user: UserDto;
   // Only use "view" | "edit in mode prop
   mode?: Extract<TModeForm, "view" | "edit">;
-  errors?: {
-    [key in keyof IUser]?: string;
-  };
+    errors?: Record<keyof IUser, string>;
 }
 // Defined default props
 const props = withDefaults(defineProps<IProps>(), {

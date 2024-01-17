@@ -18,9 +18,7 @@ import { TestUtils } from "../../utils/testUitls";
 interface IProps {
   user: UserDto;
   mode?: Extract<TModeForm, "view" | "edit">;
-  errors?: {
-    [key in keyof IUser]?: string;
-  };
+  errors?: Record<keyof IUser, string>;
 }
 
 interface IApiCodesStub {
