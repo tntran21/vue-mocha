@@ -4,7 +4,7 @@ import sinon, { SinonStub } from "sinon";
 import { expect } from "chai";
 
 import UserForm from "@/components/UserForm.vue";
-import { EStatusCode, type TModeForm } from "@/core/constants/appConstants";
+import { EStatusCode, EModeForm, type TModeForm } from "@/core/constants/appConstants";
 import { CodeDto } from "@/core/dto/codeDto";
 import { type IUser, UserDto } from "@/core/dto/userDto";
 import ApiService from "@/core/services/api.service";
@@ -62,7 +62,7 @@ describe("UserForm.vue", () => {
             phone: "1234567890",
             code: "1",
           }),
-        mode: props?.mode ?? "view",
+        mode: props?.mode ?? EModeForm.VIEW,
         errors: props?.errors ?? undefined,
       },
       global,
