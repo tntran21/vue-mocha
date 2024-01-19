@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <UserForm v-model:user="user" mode="edit" :errors="errors" />
+    <UserForm v-model:user="user" mode="view" />
     <div>Show: {{ user.name }}</div>
   </div>
 </template>
