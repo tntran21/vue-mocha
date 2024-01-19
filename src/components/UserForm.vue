@@ -59,7 +59,7 @@
 import { computed, onMounted, ref, watch } from "vue";
 import Dropdown from "primevue/dropdown";
 import UiLabel from "@/ui/atoms/UiLabel.vue";
-import UiInput from "@/ui/atoms/UiInput.vue";
+import UiInput from "@/ui/molecules/UiInput.vue";
 
 import { IUser, UserDto } from "@/core/dto/userDto";
 import { CodeDto } from "@/core/dto/codeDto";

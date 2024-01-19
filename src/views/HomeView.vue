@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <UserForm v-model:user="user" mode="edit" />
+    <UserForm v-model:user="user" mode="edit" :errors="errors" />
     <div>Show: {{ user.name }}</div>
   </div>
 </template>
@@ -25,7 +25,11 @@ export default defineComponent({
       phone: "",
     });
 
-    return { user };
+    const errors = ref({
+      name: "error fefeferw fae fefef  fef",
+    });
+
+    return { user, errors };
   },
 });
 </script>

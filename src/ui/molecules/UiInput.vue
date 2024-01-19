@@ -13,7 +13,9 @@
       @focus="onFocus"
       @blur="onBlur"
     />
-    <span v-if="error">{{ error }}</span>
+    <div v-if="error" style="text-align: left">
+      <span class="error-message error">{{ error }}</span>
+    </div>
   </div>
 </template>
 
@@ -138,6 +140,19 @@ watch(
 </script>
 
 <style scoped lang="scss">
+.p-field {
+  display: inline-block;
+  .error-message {
+    padding-left: 5px;
+    display: block;
+    &.error {
+      color: #ff0000;
+    }
+    &.warning {
+      color: #ffd858;
+    }
+  }
+}
 .p-inputtext {
   width: 100%;
 }

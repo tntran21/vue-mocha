@@ -11,7 +11,7 @@ import { type IUser, UserDto } from "@/core/dto/userDto";
 import ApiService from "@/core/services/api.service";
 import Dropdown from "primevue/dropdown";
 import UiLabel from "@/ui/atoms/UiLabel.vue";
-import UiInput from "@/ui/atoms/UiInput.vue";
+import UiInput from "@/ui/molecules/UiInput.vue";
 import InputText from "primevue/inputtext";
 import { ToastUtils } from "@/core/utils/toastUtils";
 import { TestUtils } from "../../utils/testUitls";
