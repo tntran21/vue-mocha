@@ -6,7 +6,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch } from "vue";
+import { defineComponent, ref } from "vue";
 import UserForm from "@/components/UserForm.vue";
 import { UserDto } from "@/core/dto/userDto";
 

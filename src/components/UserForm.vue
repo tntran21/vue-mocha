@@ -56,7 +56,7 @@
 
 <!-- Component UserForm: <UserForm /> -->
 <script lang="ts" setup>
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import Dropdown from "primevue/dropdown";
 import UiLabel from "@/ui/atoms/UiLabel.vue";
 import UiInput from "@/ui/atoms/UiInput.vue";
@@ -75,25 +75,21 @@ interface IProps {
     [key in keyof IUser]?: string;
   };
 }
+type IUserFormEmits = (e: "update:user", value: UserDto) => void;
+
 // Defined default props
 const props = withDefaults(defineProps<IProps>(), {
   mode: EModeForm.VIEW,
   errors: undefined,
 });
 // Defined emits
-const emit = defineEmits<{
-  "update:user": [user: UserDto];
-}>();
+const emit = defineEmits<IUserFormEmits>();
 
 /**
  * Logic handle
  * */
 const positionOptions = ref<CodeDto[]>([]);
-
-const userForm = computed({
-  get: () => props.user,
-  set: (value: UserDto) => emit("update:user", value),
-});
+const userForm = ref<UserDto>({ ...props.user });
 
 const readMode = computed(() => props.mode === EModeForm.VIEW);
 
@@ -109,6 +105,17 @@ const getPositionCode = async () => {
       ToastUtils.error(err?.message);
     });
 };
+
+watch(
+  () => props.user,
+  (newVal) => {
+    userForm.value = newVal;
+  },
+);
+
+watch(userForm.value, (newVal) => {
+  emit("update:user", newVal);
+});
 
 onMounted(async () => {
   await getPositionCode();
