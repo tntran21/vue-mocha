@@ -11,14 +11,7 @@
 <script lang="ts" setup>
 import ToastMessage from "@/ui/molecules/ToastMessage.vue";
 </script>
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  color: #2c3e50;
-}
-
+<style scoped>
 nav {
   padding: 30px;
 }

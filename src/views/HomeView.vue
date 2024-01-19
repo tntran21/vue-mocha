@@ -1,7 +1,7 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png" />
-    <UserForm :user="user" mode="edit" />
+    <UserForm v-model:user="user" mode="edit" />
+    <div>Show: {{ user.name }}</div>
   </div>
 </template>
 
@@ -16,17 +16,13 @@ export default defineComponent({
     UserForm,
   },
   setup() {
-    const user = ref(
-      new UserDto({
-        id: "1",
-        name: "John Doe",
-        email: "aeffe",
-        code: "3",
-      }),
-    );
-
-    watch(user.value, (newVal) => {
-      console.log(newVal);
+    const user = ref<UserDto>({
+      id: "1",
+      name: "John Doe",
+      email: "aeffe",
+      code: "3",
+      address: "",
+      phone: "",
     });
 
     return { user };
