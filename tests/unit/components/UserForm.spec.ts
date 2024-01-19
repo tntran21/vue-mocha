@@ -1,3 +1,4 @@
+import PrimeVue from "primevue/config";
 import { mount, flushPromises } from "@vue/test-utils";
 import { AxiosRequestHeaders, AxiosResponse } from "axios";
 import sinon, { SinonStub } from "sinon";
@@ -11,8 +12,10 @@ import ApiService from "@/core/services/api.service";
 import Dropdown from "primevue/dropdown";
 import UiLabel from "@/ui/atoms/UiLabel.vue";
 import UiInput from "@/ui/atoms/UiInput.vue";
+import InputText from "primevue/inputtext";
 import { ToastUtils } from "@/core/utils/toastUtils";
 import { TestUtils } from "../../utils/testUitls";
+import { GlobalMountOptions } from "@vue/test-utils/dist/types";
 
 interface IProps {
   user?: UserDto;
@@ -26,6 +29,13 @@ interface IApiCodesStub {
   isCodesError?: boolean;
   data?: CodeDto[];
 }
+const DEFAULT_USER: UserDto = new UserDto({
+  name: "John Doe",
+  email: "john.doe@example.com",
+  address: "123 Main St",
+  phone: "1234567890",
+  code: "1",
+});
 
 const CODES_DATA: CodeDto[] = [
   { id: "1", name: "Code 1", type: "type 1" },
@@ -33,7 +43,6 @@ const CODES_DATA: CodeDto[] = [
   { id: "3", name: "Code 3", type: "type 1" },
   { id: "4", name: "Code 4", type: "type 1" },
 ];
-
 const sandbox = sinon.createSandbox();
 
 describe("UserForm.vue", () => {
@@ -42,26 +51,18 @@ describe("UserForm.vue", () => {
 
   // Create a component instance
   const componentMount = (props?: IProps) => {
-    const global = {
+    const global: GlobalMountOptions = {
       components: {
         Dropdown,
         UiLabel,
+        InputText,
         UiInput,
       },
-      // Mock $t function
-      errorHandler: () => {},
+      plugins: [PrimeVue],
     };
     return mount(UserForm, {
       props: {
-        user:
-          props?.user ??
-          new UserDto({
-            name: "John Doe",
-            email: "john.doe@example.com",
-            address: "123 Main St",
-            phone: "1234567890",
-            code: "1",
-          }),
+        user: props?.user ?? DEFAULT_USER,
         mode: props?.mode ?? EModeForm.VIEW,
         errors: props?.errors ?? undefined,
       },
@@ -94,6 +95,7 @@ describe("UserForm.vue", () => {
     };
 
     const rejected = Promise.reject<AxiosResponse<unknown>>(notFoundRequest).then();
+
     const resolved = Promise.resolve(response).then();
     apiGetStub.withArgs("/codes");
 
@@ -132,7 +134,7 @@ describe("UserForm.vue", () => {
     }
   });
 
-  it("No.2 [Normal]: Initial view mode > API GET /codes executed with status !== 200 and show toast error", async () => {
+  it("No.2 [Normal]: Initial view mode > API GET /codes executed with status === 404 and show toast error", async () => {
     const stub = createStub({ isCodesError: true });
     const wrapper = componentMount();
     await flushPromises();
@@ -152,7 +154,31 @@ describe("UserForm.vue", () => {
     }
   });
 
-  it("No.3 [Normal]: Initial View Mode > Check modelValue and readonly of name, email, phone, address,", async () => {
+  it("No.3 [Normal]: Initial view mode > API GET /codes executed with status !== 200 position dropdown options is empty", async () => {
+    const stub = createStub();
+    stub.withArgs("/codes").returns(
+      Promise.resolve({
+        data: [],
+        status: EStatusCode.CREATED,
+        statusText: "",
+        headers: {},
+        config: { headers: {} as AxiosRequestHeaders },
+      }),
+    );
+
+    const wrapper = componentMount({
+      mode: EModeForm.EDIT,
+    });
+    await flushPromises();
+
+    try {
+      await wrapper.vm.$nextTick();
+    } finally {
+      wrapper.unmount();
+    }
+  });
+
+  it("No.4 [Normal]: Initial View Mode > Check modelValue and readonly of name, email, phone, address,", async () => {
     createStub();
     const wrapper = componentMount();
     await flushPromises();
@@ -175,7 +201,7 @@ describe("UserForm.vue", () => {
     }
   });
 
-  it("No.4 [Normal]: Initial View Mode > Check modelValue and readonly of position", async () => {
+  it("No.5 [Normal]: Initial View Mode > Check modelValue and readonly of position", async () => {
     createStub();
     const wrapper = componentMount();
     await flushPromises();
@@ -193,7 +219,7 @@ describe("UserForm.vue", () => {
     }
   });
 
-  it("No.5 [Normal]: Initial View Mode > Show error of props errors", async () => {
+  it("No.6 [Normal]: Initial View Mode > Show error of props errors", async () => {
     createStub();
     const wrapper = componentMount({
       errors: {
@@ -215,22 +241,79 @@ describe("UserForm.vue", () => {
     }
   });
 
-  it("No.6 [Normal]: Initial Edit Mode > When change name 'update:modelValue' called", async () => {
+  it("No.7 [Normal]: Initial Edit Mode > name and email is required mask", async () => {
     createStub();
     const wrapper = componentMount({
-      mode: "edit",
+      mode: EModeForm.EDIT,
     });
     await flushPromises();
 
     try {
       await wrapper.vm.$nextTick();
-      const nameInput = wrapper.find(".user-name").findComponent(UiInput);
-      await nameInput.vm.$emit("update:modelValue", "John Doe edited");
+      const nameInput = wrapper.find(".user-name").findComponent(UiLabel);
+      expect(nameInput.props("required")).to.eq(true);
+
+      const emailInput = wrapper.find(".user-email").findComponent(UiLabel);
+      expect(emailInput.props("required")).to.eq(true);
+    } finally {
+      wrapper.unmount();
+    }
+  });
+
+  it("No.8 [Normal]: Initial Edit Mode > when props user change, input show new data", async () => {
+    createStub();
+    const wrapper = componentMount({
+      mode: EModeForm.EDIT,
+    });
+    await flushPromises();
+
+    const USER_PROPS = new UserDto({
+      ...DEFAULT_USER,
+      name: "Doe John",
+      email: "abc@gmail.com",
+    });
+
+    try {
+      await wrapper.vm.$nextTick();
+      // Change props user
+      await wrapper.setProps({
+        user: USER_PROPS,
+      });
       await wrapper.vm.$nextTick();
 
-      console.log("--- emitted: ", wrapper);
+      const inputName = wrapper.find(".user-name").findComponent(UiInput);
+      expect(inputName.props("modelValue")).to.equal("Doe John");
 
-      // expect(wrapper.emitted("update:user")?.length).to.eq(1);
+      const inputEmail = wrapper.find(".user-email").findComponent(UiInput);
+      expect(inputEmail.props("modelValue")).to.equal("abc@gmail.com");
+    } finally {
+      wrapper.unmount();
+    }
+  });
+
+  it("No.9 [Normal]: Initial Edit Mode > When change name 'update:modelValue' called", async () => {
+    createStub();
+    const wrapper = componentMount({
+      mode: EModeForm.EDIT,
+    });
+    await flushPromises();
+
+    try {
+      await wrapper.vm.$nextTick();
+      await wrapper.find(".user-name").findComponent(UiInput).vm.$emit("update:modelValue", "John Doe edited");
+      expect(wrapper.emitted("update:user")).lengthOf(1);
+
+      await wrapper.find(".user-position").findComponent(Dropdown).vm.$emit("update:modelValue", "2");
+      expect(wrapper.emitted("update:user")).lengthOf(2);
+
+      await wrapper.find(".user-phone").findComponent(UiInput).vm.$emit("update:modelValue", "0123456789");
+      expect(wrapper.emitted("update:user")).lengthOf(3);
+
+      await wrapper.find(".user-address").findComponent(UiInput).vm.$emit("update:modelValue", "ABC Main St");
+      expect(wrapper.emitted("update:user")).lengthOf(4);
+
+      await wrapper.find(".user-email").findComponent(UiInput).vm.$emit("update:modelValue", "abc@gmail.com");
+      expect(wrapper.emitted("update:user")).lengthOf(5);
     } finally {
       wrapper.unmount();
     }
