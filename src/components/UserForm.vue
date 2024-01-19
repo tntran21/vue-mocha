@@ -68,6 +68,7 @@ import ApiService from "@/core/services/api.service";
 import { ToastUtils } from "@/core/utils/toastUtils";
 
 interface IProps {
+  /** data use in form */
   user: UserDto;
   // Only use "view" | "edit in mode prop
   mode?: Extract<TModeForm, "view" | "edit">;
@@ -95,6 +96,7 @@ const readMode = computed(() => props.mode === EModeForm.VIEW);
 
 /**
  * Get position code for dropdown position
+ * @return CodeDto[]
  * */
 const getPositionCode = async () => {
   await ApiService.GET("/codes")
